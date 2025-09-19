@@ -1,0 +1,133 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: 'The optional name of the artifact to build and deploy the dashboard from'
+        required: false
+        type: string
+        default: 'dashboard'
+      deploy:
+        description: 'Whether to deploy the dashboard after building it'
+        required: false
+        type: boolean
+      environment:
+        description: 'The GitHub environment to deploy the dashboard to'
+        required: true
+        type: string
+      ref:
+        description: 'The optional reference of the repository to build and deploy the dashboard from'
+        required: false
+        type: string
+        default: 'main'
+      repository:
+        description: 'The optional full name of the repository to build and deploy the dashboard from'
+        required: false
+        type: string
+        default: 'martincostello/benchmarks-dashboard'
+      runs-on:
+        description: 'The optional type of runner to use'
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+
+permissions: {}
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: 1
+  FORCE_COLOR: 3
+  NUGET_XMLDOC_MODE: skip
+  TERM: xterm
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+
+    steps:
+
+    - name: Update Windows agent configuration
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        "DOTNET_INSTALL_DIR=D:\tools\dotnet" >> ${env:GITHUB_ENV}
+        "DOTNET_ROOT=D:\tools\dotnet" >> ${env:GITHUB_ENV}
+        "NUGET_PACKAGES=D:\.nuget\packages" >> ${env:GITHUB_ENV}
+
+    - name: Checkout code
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      with:
+        filter: 'tree:0'
+        persist-credentials: false
+        ref: ${{ inputs.ref }}
+        repository: ${{ inputs.repository }}
+        show-progress: false
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
+
+    - name: Install .NET WASM tools
+      run: dotnet workload install wasm-tools
+
+    - name: Build, Test and Publish
+      run: ./build.ps1 -SkipTests
+
+    - name: Publish dashboard
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ./artifacts/publish/Dashboard/release/wwwroot
+        if-no-files-found: error
+
+  deploy:
+    needs: [ build ]
+    runs-on: ${{ inputs.runs-on }}
+    if: ${{ inputs.deploy == true }}
+
+    concurrency:
+      group: ${{ inputs.environment }}
+      cancel-in-progress: false
+
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          filter: 'tree:0'
+          persist-credentials: false
+          ref: ${{ inputs.ref }}
+          repository: ${{ inputs.repository }}
+          show-progress: false
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+
+      - name: Download dashboard artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: dashboard
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: dashboard
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
