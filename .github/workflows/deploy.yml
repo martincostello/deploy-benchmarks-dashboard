@@ -8,6 +8,10 @@ on:
         required: false
         type: string
         default: 'dashboard'
+      configuration-url:
+        description: 'The URL of the configuration file to use for the dashboard'
+        required: true
+        type: string
       deploy:
         description: 'Whether to deploy the dashboard after building it'
         required: false
@@ -68,6 +72,14 @@ jobs:
         ref: ${{ inputs.ref }}
         repository: ${{ inputs.repository }}
         show-progress: false
+
+    - name: Overwrite configuration file
+      shell: pwsh
+      env:
+        CONFIGURATION_URL: ${{ inputs.configuration-url }}
+      run: |
+        $configFilePath = Join-Path ${env:GITHUB_WORKSPACE} "src/Dashboard/wwwroot/appsettings.json"
+        Invoke-WebRequest -Uri ${env:CONFIGURATION_URL} -OutFile $configFilePath -UseBasicParsing | Out-Null
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v5.0.0
