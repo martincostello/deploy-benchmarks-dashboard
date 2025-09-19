@@ -23,7 +23,6 @@ jobs:
       id-token: write
       pages: write
     with:
-      configuration-url: ${{ format('https://raw.githubusercontent.com/{0}/benchmarks-dashboard/refs/heads/{1}/src/Dashboard/wwwroot/appsettings.json', github.repository_owner, 'main') }}
+      configuration-url: ${{ format('https://raw.githubusercontent.com/{0}/refs/heads/{1}/appsettings.json', github.repository, github.event.repository.default_branch) }}
       deploy: ${{ github.event.repository.fork == false && github.ref_name == github.event.repository.default_branch }}
       environment: github-pages
-      ref: main
