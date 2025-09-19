@@ -1,2 +1,5 @@
-# deploy-benchmarks-dashboard
-Template repository for deploying https://github.com/martincostello/benchmarks-dashboard to GitHub Pages
+# Deploy Benchmarks Dashboard
+
+Template repository for deploying [bmartincostello/benchmarks-dashboard][benchmarks-dashboard] to GitHub Pages.
+
+[benchmarks-dashboard]: https://github.com/martincostello/benchmarks-dashboard
