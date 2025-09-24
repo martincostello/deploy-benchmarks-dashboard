@@ -42,15 +42,27 @@ An example workflow for deploying the dashboard can be found in [.github/workflo
 
 The shared workflow supports the following options:
 
-| **Name**            | **Description**                                                                  | **Required** | **Type**  | **Default**                                           |
-|:--------------------|:---------------------------------------------------------------------------------|:-------------|:----------|:------------------------------------------------------|
-| `configuration-url` | The URL of the configuration file to use for the dashboard.                      | **Yes**      | `string`  | -                                                     |
-| `artifact-name`     | The optional name of the artifact to build and deploy the dashboard from.        | No           | `string`  |`dashboard`                                            |
-| `deploy`            | Whether to deploy the dashboard after building it.                               | No           | `boolean` | Only deploy from the default branch of the repository |
-| `environment`       | The GitHub environment to deploy the dashboard to.                               | No           | `string`  | `github-pages`                                        |
-| `ref`               | The optional reference of the repository to build and deploy the dashboard from. | No           | `string`  | `main`                                                |
-| `repository`        | The optional full name of the repository to build and deploy the dashboard from. | No           | `string`  | `martincostello/benchmarks-dashboard`                 |
-| `runs-on`           | The optional type of runner to use.                                              | No           | `string`  | `ubuntu-latest`                                       |
+| **Name**            | **Description**                                                                    | **Required** | **Type**  | **Default**                                           |
+|:--------------------|:-----------------------------------------------------------------------------------|:-------------|:----------|:------------------------------------------------------|
+| `configuration-url` | The URL of the [configuration file](#configuration-file) to use for the dashboard. | **Yes**      | `string`  | -                                                     |
+| `artifact-name`     | The optional name of the artifact to build and deploy the dashboard from.          | No           | `string`  |`dashboard`                                            |
+| `deploy`            | Whether to deploy the dashboard after building it.                                 | No           | `boolean` | Only deploy from the default branch of the repository |
+| `environment`       | The GitHub environment to deploy the dashboard to.                                 | No           | `string`  | `github-pages`                                        |
+| `ref`               | The optional reference of the repository to build and deploy the dashboard from.   | No           | `string`  | `main`                                                |
+| `repository`        | The optional full name of the repository to build and deploy the dashboard from.   | No           | `string`  | `martincostello/benchmarks-dashboard`                 |
+| `runs-on`           | The optional type of runner to use.                                                | No           | `string`  | `ubuntu-latest`                                       |
+
+#### Configuration file
+
+The configuration file for the dashboard is a standard JSON configuration file for [ASP.NET Core Blazor applications][blazor-configuration].
+
+The default configuration file used by the dashboard can be found in the [dashboard repository][configuration-file].
+
+Typically, you will only need to override the following options for your own deployment:
+
+1. `Dashboard.RepositoryOwner`: The owner of the repository containing the benchmark results to display in the dashboard.
+2. `Dashboard.RepositoryName`: The name of the repository containing the benchmark results to display in the dashboard.
+3. `Dashboard.Repositories`: An array of repository names containing the benchmark results to display in the dashboard.
 
 ## Feedback
 
@@ -65,7 +77,9 @@ The repository is hosted in [GitHub][repo]: <https://github.com/martincostello/d
 This project is licensed under the [Apache 2.0][license] license.
 
 [benchmarks-dashboard]: https://github.com/martincostello/benchmarks-dashboard "The Benchmarks Dashboard repository in GitHub.com"
+[blazor-configuration]: https://learn.microsoft.com/aspnet/core/blazor/fundamentals/configuration "ASP.NET Core Blazor configuration"
 [blog-post]: https://blog.martincostello.com/continuous-benchmarks-on-a-budget/ "Continuous Benchmarks on a Budget"
+[configuration-file]: https://github.com/martincostello/benchmarks-dashboard/blob/main/src/Dashboard/wwwroot/appsettings.json "The default configuration file for the Benchmarks Dashboard"
 [deploy-badge]: https://github.com/martincostello/deploy-benchmarks-dashboard/actions/workflows/deploy-dashboard.yml/badge.svg?branch=main
 [deploy-status]: https://github.com/martincostello/deploy-benchmarks-dashboard/actions?query=workflow%3Adeploy-dashboard+branch%3Amain "Continuous Deployment for this repository"
 [example]: https://github.com/martincostello/deploy-benchmarks-dashboard/blob/main/.github/workflows/deploy-dashboard.yml "Example GitHub Actions workflow for deploying the dashboard"
