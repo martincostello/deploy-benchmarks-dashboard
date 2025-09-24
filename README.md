@@ -25,7 +25,7 @@ permissions: {}
 
 jobs:
   deploy:
-    uses: martincostello/deploy-benchmarks-dashboard/blob/main/.github/workflows/deploy.yml@v1
+    uses: martincostello/deploy-benchmarks-dashboard/.github/workflows/deploy.yml@v1
     # Grant sufficient permissions to build the dashboard and deploy to GitHub Pages
     permissions:
       contents: read
