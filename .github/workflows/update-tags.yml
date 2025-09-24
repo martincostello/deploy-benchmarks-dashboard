@@ -1,0 +1,49 @@
+name: update-tags
+
+on:
+  push:
+    tags: [ v* ]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  tag:
+    name: tag
+    runs-on: [ ubuntu-latest ]
+    if: github.event.repository.fork == false
+
+    permissions:
+      contents: write
+
+    steps:
+
+    - name: Update tags
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      env:
+        BRANCH_NAME: ${{ github.ref_name }}
+      with:
+        script: |
+          const version = process.env.BRANCH_NAME.split('.')[0];
+          let floating = null;
+          try {
+            floating = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `tags/${version}`
+            })
+          } catch {
+          }
+          if (floating) {
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `tags/${version}`
+            })
+          }
+          await github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${version}`,
+            sha: context.sha
+          })
