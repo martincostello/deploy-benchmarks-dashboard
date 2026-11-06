@@ -1,3 +1,8 @@
+paths:
+  .github/workflows/*.{yml,yaml}:
+    ignore:
+      - 'reusable.workflow.call.*\$/\.github/workflows/'
+
 self-hosted-runner:
   labels:
     - ubuntu-26.04
