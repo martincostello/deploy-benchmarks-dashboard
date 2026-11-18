@@ -23,6 +23,6 @@ jobs:
           show-progress: false
 
       - name: Review dependencies
-        uses: actions/dependency-review-action@v5.0.0
+        uses: actions/dependency-review-action@v5.0.1
         with:
           allow-licenses: 'Apache-2.0,BSD-2-Clause,BSD-3-Clause,ISC,MIT'
